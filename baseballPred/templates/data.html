@@ -1,0 +1,57 @@
+{% extends "base_generic.html" %}
+{% block header %}
+<title>Data</title>
+{% endblock %}
+
+{% block content %}
+    <h1>Choose two teams</h1>
+
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <form action="{% url 'baseballPred:ajax_get_team_winrates' %}" method="get" id="form_winrate">
+        {% csrf_token %}
+        Team 1: <select name="team1" id="team1">
+        {% for team, id in team_id_dict.items %}
+            <option value={{ id }}>{{ team }}</option>
+        {% endfor %}
+        </select>
+
+        Team 2: <select name="team2" id="team2">
+        {% for team, id in team_id_dict.items %}
+            <option value={{ id }}>{{ team }}</option>
+        {% endfor %}
+        </select>
+
+        <input type="submit" value="Submit", id="id_submit">
+    </form>
+
+    <div>
+        <h3 id="id_winrate"></h3>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    $("form").submit(function () {
+        var url = $(this).attr("action");  // get the url of the `load_cities` view
+        var formData = {
+            team1: $("#team1").val(),
+            team2: $("#team2").val(),
+        };
+        $.ajax({
+            type: "GET",
+            url: url,
+            data: formData,
+            success: function (data) {
+                console.log(data);
+                if(data.found) {
+                    $("#id_winrate").html("The " + data.team1_name + " has a winrate of " + (data.team1_winrate * 100) + "% against the " + data.team2_name + ".");
+                } else {
+                    $("#id_winrate").html(data.team1_winrate);
+                }
+            }
+        });
+        event.preventDefault();
+    });
+</script>
+{% endblock %}
