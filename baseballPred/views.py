@@ -1,7 +1,7 @@
-from django.shortcuts import render
+from django.urls import reverse_lazy
 from baseballPred.GamesBetweenTeams import getGamesBetweenTeams
 from django.http import JsonResponse
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView
 
 
 class IndexView(TemplateView):
@@ -63,10 +63,42 @@ class DataView(TemplateView):
         except ValueError:
             found = False
 
+        games.setStats()
+        team1, team2 = games.getStats()
+
         data = {
             'found': found,
             'team1_winrate': winrate,
             'team1_name': games.team1,
             'team2_name': games.team2,
+            'team1': team1,
+            'team2': team2,
         }
         return JsonResponse(data)
+
+
+class TableTeamSelectView(FormView):
+    template_name = ''
+    form_class = TeamSelectForm
+    success_url = reverse_lazy('')
+
+#
+# class TableView(TemplateView):
+#     template_name = 'table.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['team1'], context['team2'] =
+#
+#     @staticmethod
+#     def ajax_get_team_data(request):
+#         team1_id = int(request.GET.get('team1'))
+#         team2_id = int(request.GET.get('team2'))
+#         games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2020', '12/31/2020')
+#         games.setStats()
+#         team1, team2 = games.getStats()
+#         data = {
+#             'team1': team1,
+#             'team2': team2,
+#         }
+#         return JsonResponse(data)

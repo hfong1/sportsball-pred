@@ -1,0 +1,16 @@
+<form action="{% url 'baseballPred:ajax_get_team_winrates' %}" method="get" id="form_winrate">
+    {% csrf_token %}
+    Team 1: <select name="team1" id="team1">
+    {% for team, id in team_id_dict.items %}
+        <option value={{ id }}>{{ team }}</option>
+    {% endfor %}
+    </select>
+
+    Team 2: <select name="team2" id="team2">
+    {% for team, id in team_id_dict.items %}
+        <option value={{ id }}>{{ team }}</option>
+    {% endfor %}
+    </select>
+
+    <input type="submit" value="Submit" id="id_submit">
+</form>
