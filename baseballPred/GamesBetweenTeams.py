@@ -97,6 +97,7 @@ class GamesBetweenTeams:
     era = [[],[]]
 
     earnedRuns = [[],[]]
+    dates = []
 
     # Given the id's of two teams, return create a class of games between team1
     #   and team2.
@@ -212,6 +213,8 @@ class GamesBetweenTeams:
             for game in season:
                 if (game.get('game_type') == 'R' and game.get('status') == 'Final'):      #if the game is a regular season game
                     season_games.append(game)
+                    self.dates.append(game.get('game_date'))
+
 
             self.games = season_games
         return
