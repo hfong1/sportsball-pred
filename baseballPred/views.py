@@ -1,17 +1,15 @@
 from django.shortcuts import render
 from baseballPred.GamesBetweenTeams import getGamesBetweenTeams
 from django.http import JsonResponse
+from django.views.generic import TemplateView
 
 
-# Create your views here.
-def index(request):
-    template = 'index.html'
-    context = {}
-    return render(request, template, context)
+class IndexView(TemplateView):
+    template_name = 'index.html'
 
 
-def data(request):
-    template = 'data.html'
+class DataView(TemplateView):
+    template_name = 'data.html'
     team_id_dict = {
         # National League
         'Arizona Diamondbacks': 109,
@@ -46,28 +44,29 @@ def data(request):
         'Chicago White Sox': 145,
         'New York Yankees': 147
     }
-    context = {
-        'team_id_dict': team_id_dict,
-    }
-    return render(request, template, context)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['team_id_dict'] = self.team_id_dict
+        return context
 
-def ajax_get_team_winrates(request):
-    team1_id = int(request.GET.get('team1'))
-    team2_id = int(request.GET.get('team2'))
-    games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2020', '12/31/2020')
+    @staticmethod
+    def ajax_get_team_winrates(request):
+        team1_id = int(request.GET.get('team1'))
+        team2_id = int(request.GET.get('team2'))
+        games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2020', '12/31/2020')
 
-    winrate = games.getWinRate()
-    found = True
-    try:
-        winrate = float(winrate)
-    except ValueError:
-        found = False
+        winrate = games.getWinRate()
+        found = True
+        try:
+            winrate = float(winrate)
+        except ValueError:
+            found = False
 
-    data = {
-        'found': found,
-        'team1_winrate': winrate,
-        'team1_name': games.team1,
-        'team2_name': games.team2,
-    }
-    return JsonResponse(data)
+        data = {
+            'found': found,
+            'team1_winrate': winrate,
+            'team1_name': games.team1,
+            'team2_name': games.team2,
+        }
+        return JsonResponse(data)
