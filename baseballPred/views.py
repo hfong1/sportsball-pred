@@ -1,7 +1,9 @@
 from django.urls import reverse_lazy
+from django.shortcuts import render
 from baseballPred.GamesBetweenTeams import getGamesBetweenTeams
 from django.http import JsonResponse
 from django.views.generic import TemplateView, FormView
+from baseballPred.forms import TeamSelectForm
 
 
 class IndexView(TemplateView):
@@ -63,45 +65,89 @@ class DataView(TemplateView):
         except ValueError:
             found = False
 
-        games.setStats()
-        team1, team2 = games.getStats()
-        team1avg, team2avg = games.getStatAverages()
-
         data = {
             'found': found,
             'team1_winrate': winrate,
             'team1_name': games.team1,
             'team2_name': games.team2,
-            'team1': team1,
-            'team2': team2,
-            'team1avg': team1avg,
-            'team2avg': team2avg,
         }
         return JsonResponse(data)
 
 
-# class TableTeamSelectView(FormView):
-#     template_name = ''
-#     form_class = TeamSelectForm
-#     success_url = reverse_lazy('')
+class TableTeamSelectView(FormView):
+    template_name = 'forms/pick_team.html'
+    form_class = TeamSelectForm
+    success_url = reverse_lazy('baseballPred:stats_table')
 
-#
-# class TableView(TemplateView):
-#     template_name = 'table.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['team1'], context['team2'] =
-#
-#     @staticmethod
-#     def ajax_get_team_data(request):
-#         team1_id = int(request.GET.get('team1'))
-#         team2_id = int(request.GET.get('team2'))
-#         games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2020', '12/31/2020')
-#         games.setStats()
-#         team1, team2 = games.getStats()
-#         data = {
-#             'team1': team1,
-#             'team2': team2,
-#         }
-#         return JsonResponse(data)
+
+class TableView(TemplateView):
+    template_name = 'table.html'
+
+    @staticmethod
+    def flip_team_data(data):
+        new_dict = {}
+        for idx in range(len(data['dates'])):
+            id = data['dates'][idx]
+            new_dict[id] = {
+                'runs': data['runs'][idx],
+                'doubles': data['doubles'][idx],
+                'triples': data['triples'][idx],
+                'homeRuns': data['homeRuns'][idx],
+                'strikeOuts': data['strikeOuts'][idx],
+                'baseOnBalls': data['baseOnBalls'][idx],
+                'hits': data['hits'][idx],
+                'avg': data['avg'][idx],
+                'atBats': data['atBats'][idx],
+                'obp': data['obp'][idx],
+                'slg': data['slg'][idx],
+                'record': data['record'][idx],
+                'ops': data['ops'][idx],
+                'stolenBases': data['stolenBases'][idx],
+                'leftOnBase': data['leftOnBase'][idx],
+                'era': data['era'][idx],
+                'earnedRuns': data['earnedRuns'][idx],
+            }
+        return new_dict
+
+    def get_context_data(self, team1_id, team2_id, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2019', '12/31/2020')
+        games.setStats()
+
+        context['table_tags'] = [
+            'dates',
+            'runs',
+            'doubles',
+            'triples',
+            'homeRuns',
+            'strikeOuts',
+            'baseOnBalls',
+            'hits',
+            'avg',
+            'atBats',
+            'obp',
+            'slg',
+            'record',
+            'ops',
+            'stolenBases',
+            'leftOnBase',
+            'era',
+            'earnedRuns',
+        ]
+
+        context['team1_name'] = games.team1
+        context['team2_name'] = games.team2
+        context['team1'], context['team2'] = games.getStats()
+        context['team1'] = self.flip_team_data(context['team1'])
+        context['team2'] = self.flip_team_data(context['team2'])
+        context['team1avg'], context['team2avg'] = games.getStatAverages()
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        team1_id = int(request.GET.get('team1_id'))
+        team2_id = int(request.GET.get('team2_id'))
+        context = self.get_context_data(team1_id, team2_id)
+
+        return render(request, self.template_name, context)

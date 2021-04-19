@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+{% block header %}
+<title>Stats</title>
+{% endblock %}
+
+{% block content %}
+    <h1>Choose two teams to display stats</h1>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+    <form action="{% url 'baseballPred:stats_table' %}" method="get">
+        {{ form.as_p }}
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}
+

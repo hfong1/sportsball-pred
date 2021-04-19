@@ -1,0 +1,85 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block header %}
+<title>Stats</title>
+{% endblock %}
+
+<!-- Logo -->
+{% block head %}
+{% endblock %}
+
+<!-- Main -->
+{% block content %}
+<h1>{{ team1_name }}</h1>
+<div>
+    <table id="team1_table" class="table table-striped" style="width:100%">
+        <thead>
+            <tr>
+                {% for tag in table_tags %}
+                    <th>{{ tag }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, item_list in team1.items %}
+                <tr>
+                    <td>{{ key }}</td>
+                {% for elem in item_list.values %}
+                    <td>{{ elem }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Averages</th>
+                {% for elem in team1avg.values %}
+                    <th>{{ elem }}</th>
+                {% endfor %}
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+
+<h1>{{ team2_name }}</h1>
+<div>
+    <table id="team2_table" class="table table-striped" style="width:100%">
+        <thead>
+            <tr>
+                {% for tag in table_tags %}
+                    <th>{{ tag }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, item_list in team2.items %}
+                <tr>
+                    <td>{{ key }}</td>
+                {% for elem in item_list.values %}
+                    <td>{{ elem }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Averages</th>
+                {% for elem in team2avg.values %}
+                    <th>{{ elem }}</th>
+                {% endfor %}
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{#    <script>#}
+{#        $(document).ready(function() {#}
+{#            $('#team1_table').DataTable();#}
+{#            $('#team2_table').DataTable();#}
+{#        });#}
+{#    </script>#}
+{% endblock %}

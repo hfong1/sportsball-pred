@@ -50,7 +50,7 @@ team_id_dict = {
     'Toronto Blue Jays':141,
     'Minnesota Twins':142,
     'Chicago White Sox':145,
-    'New York Yankees':147
+    'New York Yankees':147,
 }
 
 
@@ -76,27 +76,27 @@ class GamesBetweenTeams:
     win_rate = -1
 
     # batting stats
-    runs = [[],[]]
-    doubles = [[],[]]
-    triples = [[],[]]
-    homeRuns = [[],[]]
-    strikeOuts = [[],[]]
-    baseOnBalls= [[],[]]
-    hits = [[],[]]
-    avg = [[],[]]
-    atBats = [[],[]]
-    obp = [[],[]]
-    slg = [[],[]]
+    runs = [[], []]
+    doubles = [[], []]
+    triples = [[], []]
+    homeRuns = [[], []]
+    strikeOuts = [[], []]
+    baseOnBalls = [[], []]
+    hits = [[], []]
+    avg = [[], []]
+    atBats = [[], []]
+    obp = [[], []]
+    slg = [[], []]
 
     record = []
-    ops = [[],[]]
+    ops = [[], []]
 
-    stolenBases = [[],[]]
-    leftOnBase = [[],[]]
-    #pitching stats
-    era = [[],[]]
+    stolenBases = [[], []]
+    leftOnBase = [[], []]
+    # pitching stats
+    era = [[], []]
 
-    earnedRuns = [[],[]]
+    earnedRuns = [[], []]
     dates = []
 
     # Given the id's of two teams, return create a class of games between team1
@@ -179,7 +179,7 @@ class GamesBetweenTeams:
         games = statsapi.schedule(start_date=start_date,end_date=end_date,team=self.team1_id,opponent=self.team2_id)
         return games
 
-    # this funciton uses date and month, the other funciton will use just seasons to make it easier
+    # this function uses date and month, the other function will use just seasons to make it easier
     def getAllGames(self):
         start_y = int(self.start_date[6:10])
         end_y = int(self.end_date[6:10])
@@ -187,12 +187,12 @@ class GamesBetweenTeams:
         SOY = f'01/01/{start_y}'
         EOY = f'12/31/{start_y}'
 
-        if(start_y == end_y):
+        if start_y == end_y:
             self.games.append(self.findSchedule(self.start_date, self.end_date))
-        elif(start_y < end_y):
+        elif start_y < end_y:
             self.games.append(self.findSchedule(self.start_date, EOY))
             start_y += 1
-            while(start_y < end_y):
+            while start_y < end_y:
                 SOY = f'01/01/{start_y}'
                 EOY = f'12/31/{start_y}'
                 self.games.append(self.findSchedule(SOY, EOY))
@@ -403,82 +403,3 @@ def getTeamIdFromTeamName(team_name):
     team_id_dict.add({team_name: team_id})
 
     return team_id
-
-
-# def convert_ops_era_to_df():
-#     WashOps= test.ops[0]
-#     NatsOps = test.ops[1]
-#     Washera= test.era[0]
-#     Natsera = test.era[1]
-#     d = {'Wops': WashOps, 'Nops' :NatsOps, 'Wera' : Washera, 'Nera' : Natsera}
-#     pdf = pd.DataFrame(data=d)
-#     return pdf
-#     print(pdf.head(50))
-
-
-# test case for to run in cmd or terminal
-# win percentage can be found online by looking up win the schedule of the team and the year
-# i.e. Nationals schedule 2019 almanac. I like the baseball almanac site
-# https://www.baseball-almanac.com/teamstats/schedule.php?y=2019&t=WS0
-# if no end date is given, then the current date will be used as the end date
-
-
-# hit = GamesBetweenTeamsClass(143, 120, '01/01/2019', '12/31/2019')
-# test = GamesBetweenTeams(143, 120, '01/01/2015', '12/31/2019')
-# nats = GamesBetweenTeamsClass(120, 143, '01/01/2019', '12/31/2019')
-# print(test.games)
-# test.setStats()
-#
-# test.getAllGames()
-# phillies.getAllGames()
-# nats.getAllGames()
-# print(test.games)
-
-# print(test.start_date)
-# print("\n")
-# print(test.end_date)
-# print("\n")
-# print(test.runs)
-# print("\n")
-# print(test.doubles)
-
-# print("\n")
-# print(test.triples)
-# print("\n")
-# print(test.homeRuns)
-# print("\n")
-# print(test.strikeOuts)
-# print("\n")
-# print(test.baseOnBalls)
-# print("\n")
-# print(test.hits)
-# print("\n")
-# print(test.avg)
-# print("\n")
-# print(test.atBats)
-# print("\n")
-# print(test.obp)
-# print("\n")
-# print(test.slg)
-# print("\n")
-# print(test.stolenBases)
-# print("\n")
-# print(test.leftOnBase)
-# print("\n")
-# print(test.earnedRuns)
-# print("\n")
-# test.convert_ops_era_to_df()
-
-# print(phillies.ops)
-# print("\n")
-# print(nats.ops)
-# print("\n")
-# print(phillies.era)
-# print("\n")
-# print(nats.era)
-# print("\n")
-
-
-# print(test.getWinRate())
-# test = GamesBetweenTeamsClass(120, 121, '01/01/2019', '')
-# print(test.getWinRate())
