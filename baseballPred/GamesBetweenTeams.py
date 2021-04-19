@@ -215,7 +215,6 @@ class GamesBetweenTeams:
                     season_games.append(game)
                     self.dates.append(game.get('game_date'))
 
-
             self.games = season_games
         return
     
@@ -228,6 +227,7 @@ class GamesBetweenTeams:
 
     def getStats(self):
         team1 = {
+            'dates': self.dates,
             'runs': self.runs[0],
             'doubles': self.doubles[0],
             'triples': self.triples[0],
@@ -247,6 +247,7 @@ class GamesBetweenTeams:
             'earnedRuns': self.earnedRuns[0],
         }
         team2 = {
+            'dates': self.dates,
             'runs': self.runs[1],
             'doubles': self.doubles[1],
             'triples': self.triples[1],
@@ -275,44 +276,44 @@ class GamesBetweenTeams:
         return round(reduce(lambda a, b: a + b, lst) / len(lst), 3)
 
     def getStatAverages(self):
-        team1 = {
-            'runs': self.average(self.runs[0]),
-            'doubles': self.average(self.doubles[0]),
-            'triples': self.average(self.triples[0]),
-            'homeRuns': self.average(self.homeRuns[0]),
-            'strikeOuts': self.average(self.strikeOuts[0]),
-            'baseOnBalls': self.average(self.baseOnBalls[0]),
-            'hits': self.average(self.hits[0]),
-            'avg': self.average(self.avg[0]),
-            'atBats': self.average(self.atBats[0]),
-            'obp': self.average(self.obp[0]),
-            'slg': self.average(self.slg[0]),
-            'record': sum(self.record),
-            'ops': self.average(self.ops[0]),
-            'stolenBases': self.average(self.stolenBases[0]),
-            'leftOnBase': self.average(self.leftOnBase[0]),
-            'era': self.average(self.era[0]),
-            'earnedRuns': self.average(self.earnedRuns[0]),
-        }
-        team2 = {
-            'runs': self.average(self.runs[1]),
-            'doubles': self.average(self.doubles[1]),
-            'triples': self.average(self.triples[1]),
-            'homeRuns': self.average(self.homeRuns[1]),
-            'strikeOuts': self.average(self.strikeOuts[1]),
-            'baseOnBalls': self.average(self.baseOnBalls[1]),
-            'hits': self.average(self.hits[1]),
-            'avg': self.average(self.avg[1]),
-            'atBats': self.average(self.atBats[1]),
-            'obp': self.average(self.obp[1]),
-            'slg': self.average(self.slg[1]),
-            'record': len(self.record) - sum(self.record),
-            'ops': self.average(self.ops[1]),
-            'stolenBases': self.average(self.stolenBases[1]),
-            'leftOnBase': self.average(self.leftOnBase[1]),
-            'era': self.average(self.era[1]),
-            'earnedRuns': self.average(self.earnedRuns[1]),
-        }
+        team1, team2 = self.getStats()
+        team1.pop('dates', None)
+        team2.pop('dates', None)
+        team1['runs'] = self.average(team1['runs'])
+        team1['doubles'] = self.average(team1['doubles'])
+        team1['triples'] = self.average(team1['triples'])
+        team1['homeRuns'] = self.average(team1['homeRuns'])
+        team1['strikeOuts'] = self.average(team1['strikeOuts'])
+        team1['baseOnBalls'] = self.average(team1['baseOnBalls'])
+        team1['hits'] = self.average(team1['hits'])
+        team1['avg'] = self.average(team1['avg'])
+        team1['atBats'] = self.average(team1['atBats'])
+        team1['obp'] = self.average(team1['obp'])
+        team1['slg'] = self.average(team1['slg'])
+        team1['record'] = sum(self.record)
+        team1['ops'] = self.average(team1['ops'])
+        team1['stolenBases'] = self.average(team1['stolenBases'])
+        team1['leftOnBase'] = self.average(team1['leftOnBase'])
+        team1['era'] = self.average(team1['era'])
+        team1['earnedRuns'] = self.average(team1['earnedRuns'])
+
+        team2['runs'] = self.average(team2['runs'])
+        team2['doubles'] = self.average(team2['doubles'])
+        team2['triples'] = self.average(team2['triples'])
+        team2['homeRuns'] = self.average(team2['homeRuns'])
+        team2['strikeOuts'] = self.average(team2['strikeOuts'])
+        team2['baseOnBalls'] = self.average(team2['baseOnBalls'])
+        team2['hits'] = self.average(team2['hits'])
+        team2['avg'] = self.average(team2['avg'])
+        team2['atBats'] = self.average(team2['atBats'])
+        team2['obp'] = self.average(team2['obp'])
+        team2['slg'] = self.average(team2['slg'])
+        team2['record'] = len(self.record) - sum(self.record)
+        team2['ops'] = self.average(team2['ops'])
+        team2['stolenBases'] = self.average(team2['stolenBases'])
+        team2['leftOnBase'] = self.average(team2['leftOnBase'])
+        team2['era'] = self.average(team2['era'])
+        team2['earnedRuns'] = self.average(team2['earnedRuns'])
 
         return team1, team2
 

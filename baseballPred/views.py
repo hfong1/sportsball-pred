@@ -54,7 +54,7 @@ class DataView(TemplateView):
     def ajax_get_team_winrates(request):
         team1_id = int(request.GET.get('team1'))
         team2_id = int(request.GET.get('team2'))
-        games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2020', '12/31/2020')
+        games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2019', '12/31/2020')
 
         winrate = games.getWinRate()
         found = True
@@ -65,6 +65,7 @@ class DataView(TemplateView):
 
         games.setStats()
         team1, team2 = games.getStats()
+        team1avg, team2avg = games.getStatAverages()
 
         data = {
             'found': found,
@@ -73,14 +74,16 @@ class DataView(TemplateView):
             'team2_name': games.team2,
             'team1': team1,
             'team2': team2,
+            'team1avg': team1avg,
+            'team2avg': team2avg,
         }
         return JsonResponse(data)
 
 
-class TableTeamSelectView(FormView):
-    template_name = ''
-    form_class = TeamSelectForm
-    success_url = reverse_lazy('')
+# class TableTeamSelectView(FormView):
+#     template_name = ''
+#     form_class = TeamSelectForm
+#     success_url = reverse_lazy('')
 
 #
 # class TableView(TemplateView):
