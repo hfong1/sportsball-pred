@@ -4,6 +4,7 @@ from baseballPred.GamesBetweenTeams import getGamesBetweenTeams
 from django.http import JsonResponse
 from django.views.generic import TemplateView, FormView
 from baseballPred.forms import TeamSelectForm
+from baseballPred.BNET import Bnet
 
 
 class IndexView(TemplateView):
@@ -56,12 +57,12 @@ class DataView(TemplateView):
     def ajax_get_team_winrates(request):
         team1_id = int(request.GET.get('team1'))
         team2_id = int(request.GET.get('team2'))
-        games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2019', '12/31/2020')
+        games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2015', '12/31/2020')
 
         winrate = games.getWinRate()
         found = True
         try:
-            winrate = float(winrate)
+            winrate = round(float(winrate), 5)
         except ValueError:
             found = False
 
@@ -70,6 +71,25 @@ class DataView(TemplateView):
             'team1_winrate': winrate,
             'team1_name': games.team1,
             'team2_name': games.team2,
+        }
+        return JsonResponse(data)
+
+    @staticmethod
+    def ajax_get_bn_wr(request):
+        team1_id = int(request.GET.get('team1'))
+        team2_id = int(request.GET.get('team2'))
+        games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2015', '12/31/2020')
+        bnet = Bnet(games)
+        var_ranges = bnet.get_ranges()
+        bnWR = round(bnet.get_bnet_wr(games, 5, 5), 5)
+
+        data = {
+            'team1_bnwinrate': bnWR,
+            'team1_name': games.team1,
+            'team2_name': games.team2,
+            'wops_range': var_ranges['wops'],
+            'pops_range': var_ranges['pops'],
+            'wera_range': var_ranges['wera'],
         }
         return JsonResponse(data)
 
@@ -112,7 +132,9 @@ class TableView(TemplateView):
     def get_context_data(self, team1_id, team2_id, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        print("retrieve records")
         games = getGamesBetweenTeams(team1_id, team2_id, '01/01/2019', '12/31/2020')
+        print("load variables")
         games.setStats()
 
         context['table_tags'] = [
@@ -142,7 +164,6 @@ class TableView(TemplateView):
         context['team1'] = self.flip_team_data(context['team1'])
         context['team2'] = self.flip_team_data(context['team2'])
         context['team1avg'], context['team2avg'] = games.getStatAverages()
-
         return context
 
     def get(self, request, *args, **kwargs):

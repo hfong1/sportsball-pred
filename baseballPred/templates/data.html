@@ -26,8 +26,14 @@
     </form>
 
     <div>
-        <h3 id="id_winrate"></h3>
+        <p id="id_winrate"></p>
     </div>
+
+    <form action="{% url 'baseballPred:ajax_get_bn_wr' %}" method="get" id="form_bn_winrate">
+
+    </form>
+            <p id="id_bnwinrate"></p>
+
 {% endblock %}
 
 {% block scripts %}
@@ -45,7 +51,10 @@
             success: function (data) {
                 console.log(data);
                 if(data.found) {
-                    $("#id_winrate").html("The " + data.team1_name + " has a winrate of " + (data.team1_winrate * 100) + "% against the " + data.team2_name + ".");
+                    $("#id_winrate").html("The " + data.team1_name + " has a historic winrate of " + (data.team1_winrate * 100) + "% against the " + data.team2_name + ".");
+                    $("#id_bnwinrate").html(
+                        "Our Bayesian Network predicts that the " + data.team1_name + " has a " + (data.team1_bnwinrate * 100) + "% chance of winning against the " + data.team2_name + "."
+                    );
                 } else {
                     $("#id_winrate").html(data.team1_winrate);
                 }

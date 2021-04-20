@@ -2,6 +2,9 @@ import statsapi
 from datetime import date
 from functools import reduce
 import pandas as pd
+from baseballPred.models import GameBetweenTeams, GamesBetweenTeamsHistory
+from django.db import IntegrityError
+from django.forms.models import model_to_dict
 
 # Heads up: Python-3 and 5 spaces as a tab.
 
@@ -65,39 +68,6 @@ team_id_dict = {
 
 # A wrapper class for GamesBetweenTeam list.
 class GamesBetweenTeams:
-    team1_id = -1
-    team2_id = -1
-    team1 = ''
-    team2 = ''
-    games = []
-    start_date = ''
-    end_date = ''
-
-    win_rate = -1
-
-    # batting stats
-    runs = [[], []]
-    doubles = [[], []]
-    triples = [[], []]
-    homeRuns = [[], []]
-    strikeOuts = [[], []]
-    baseOnBalls = [[], []]
-    hits = [[], []]
-    avg = [[], []]
-    atBats = [[], []]
-    obp = [[], []]
-    slg = [[], []]
-
-    record = []
-    ops = [[], []]
-
-    stolenBases = [[], []]
-    leftOnBase = [[], []]
-    # pitching stats
-    era = [[], []]
-
-    earnedRuns = [[], []]
-    dates = []
 
     # Given the id's of two teams, return create a class of games between team1
     #   and team2.
@@ -105,6 +75,31 @@ class GamesBetweenTeams:
     #   but in case we choose to dissect this class for later, duplicate the two
     #   arguments.
     def __init__(self, team1_id, team2_id, start_date='input start mm/dd/YY', end_date='input end mm/dd/YY'):
+        self.win_rate = -1
+
+        # batting stats
+        self.runs = [[], []]
+        self.doubles = [[], []]
+        self.triples = [[], []]
+        self.homeRuns = [[], []]
+        self.strikeOuts = [[], []]
+        self.baseOnBalls = [[], []]
+        self.hits = [[], []]
+        self.avg = [[], []]
+        self.atBats = [[], []]
+        self.obp = [[], []]
+        self.slg = [[], []]
+
+        self.record = []
+        self.ops = [[], []]
+
+        self.stolenBases = [[], []]
+        self.leftOnBase = [[], []]
+        # pitching stats
+        self.era = [[], []]
+
+        self.earnedRuns = [[], []]
+        self.dates = []
         self.team1_id = team1_id
         self.team2_id = team2_id
  
@@ -120,19 +115,30 @@ class GamesBetweenTeams:
         # self.games = statsapi.schedule(start_date=start_date,end_date=end_date,team=team1_id,opponent=team2_id)
         # self.getInSeasonGames()   #only look at regular season games (non including preseason or playoff games)
 
+        # for some reason calling the game data from the database doesn't allow the setstats() function to populate the other variables
+        # game_ids = GamesBetweenTeamsHistory.objects\
+        #     .filter(team1_id=team1_id, team2_id=team2_id)\
+        #     .order_by('game_id')
+        # if game_ids:
+        #     print("found games with ids")
+        #     print(list(game_ids.values_list('game_id', flat=True)))
+        #     self.games = [model_to_dict(game.game_id) for game in game_ids]
+        #     for game in self.games:
+        #         game['game_datetime'] = str(game['game_datetime'])
+        #         game['game_date'] = str(game['game_date'])
+        #     print(len(self.games))
+        # else:
         self.getAllGames()
         self.getInSeasonGames()
         print(len(self.games))
-
-        # print(self.team1)
-        # print(self.team1_id)
-        # print(self.team2)
-        # print(self.team2_id)
-
-        # And the rest is the HTML
-
-        # print(self.games)
-        # print(statsapi.meta('gameTypes'))
+        for item in self.games:
+            temp = GameBetweenTeams(**item)
+            temp.save()
+            log = GamesBetweenTeamsHistory(team1_id=team1_id, team2_id=team2_id, game_id=temp)
+            try:
+                log.save()
+            except IntegrityError:
+                continue
 
     # Get the win rate simply by W/L
     def getWinRate(self):
@@ -155,10 +161,6 @@ class GamesBetweenTeams:
             elif game.get('status') == 'Final: Tied':
                 team1_ties += 1
 
-        # print(f"wins: {team1_wins}")
-        # print(f"losses: {team1_losses}")
-        # print(f"ties: {team1_ties}")
-        
         # there will not be ties in regular season, or postseason, however if we decide to use pre season
         # then there are ties.
         # win rate is wins / total games... if there are ties, then it is the formula below.
@@ -176,11 +178,12 @@ class GamesBetweenTeams:
         return self.games
 
     def findSchedule(self, start_date, end_date):
-        games = statsapi.schedule(start_date=start_date,end_date=end_date,team=self.team1_id,opponent=self.team2_id)
+        games = statsapi.schedule(start_date=start_date, end_date=end_date, team=self.team1_id, opponent=self.team2_id)
         return games
 
     # this function uses date and month, the other function will use just seasons to make it easier
     def getAllGames(self):
+        self.games = []
         start_y = int(self.start_date[6:10])
         end_y = int(self.end_date[6:10])
 
@@ -200,18 +203,12 @@ class GamesBetweenTeams:
             SOY = f'01/01/{start_y}'
             self.games.append(self.findSchedule(SOY, self.end_date))
 
-        # print(start_m)
-        # print(start_d)
-        # print(start_y)
-        # print(end_m)
-        # print(end_d)
-        # print(end_y)
-    # right now this funciton will change the self.games to only be the games from the regular season
+    # right now this function will change the self.games to only be the games from the regular season
     def getInSeasonGames(self):
         season_games = []
         for season in self.games:
             for game in season:
-                if (game.get('game_type') == 'R' and game.get('status') == 'Final'):      #if the game is a regular season game
+                if game.get('game_type') == 'R' and game.get('status') == 'Final':  # if the game is a regular season game
                     season_games.append(game)
                     self.dates.append(game.get('game_date'))
 
@@ -377,12 +374,12 @@ class GamesBetweenTeams:
             self.era[team2_idx].append(home_pitching.get('era'))  # era statistics
 
     def convert_ops_era_to_df(self):
-        WashOps= self.ops[0]
+        WashOps = self.ops[0]
         NatsOps = self.ops[1]
-        Washera= self.era[0]
+        Washera = self.era[0]
         Natsera = self.era[1]
         Win_loss = self.record
-        d = {'Wops(A)': WashOps, 'Pops(A)' :NatsOps, 'Wera(D)' : Washera, 'Pera(D)' : Natsera, 'winsW': Win_loss}
+        d = {'Wops(A)': WashOps, 'Pops(A)':NatsOps, 'Wera(D)': Washera, 'Pera(D)': Natsera, 'winsW': Win_loss}
         pdf = pd.DataFrame(data=d)
         print(pdf.head(50))
         return pdf
@@ -403,3 +400,5 @@ def getTeamIdFromTeamName(team_name):
     team_id_dict.add({team_name: team_id})
 
     return team_id
+
+# test = getGamesBetweenTeams(143, 120, '01/01/2015', '12/31/2019')
