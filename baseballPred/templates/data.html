@@ -1,4 +1,5 @@
 {% extends "base_generic.html" %}
+{% load static %}
 {% block header %}
 <title>Data</title>
 {% endblock %}
@@ -27,18 +28,15 @@
 
     <div>
         <p id="id_winrate"></p>
+        <p id="id_bnwinrate"></p>
     </div>
-
-    <form action="{% url 'baseballPred:ajax_get_bn_wr' %}" method="get" id="form_bn_winrate">
-
-    </form>
-            <p id="id_bnwinrate"></p>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
     $("form").submit(function () {
+        $("#id_winrate").html("<img src=\"{% static 'images/loading.gif' %}\" alt=\"Loading...\">");
         var url = $(this).attr("action");  // get the url of the `load_cities` view
         var formData = {
             team1: $("#team1").val(),
@@ -58,7 +56,11 @@
                 } else {
                     $("#id_winrate").html(data.team1_winrate);
                 }
+            },
+            error: function() {
+                $("#id_winrate").innerHTML = "";
             }
+
         });
         event.preventDefault();
     });

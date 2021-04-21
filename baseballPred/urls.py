@@ -10,5 +10,5 @@ urlpatterns = [
       path('ajax/data/teams/', views.DataView.ajax_get_team_winrates, name='ajax_get_team_winrates'),
       path('stats/', views.TableTeamSelectView.as_view(), name='table_team_selct'),
       path('stats/table', views.TableView.as_view(), name='stats_table'),
-      path('ajax/data/bn', views.DataView.ajax_get_bn_wr, name='ajax_get_bn_wr'),
+      # path('ajax/data/bn', views.DataView.ajax_get_bn_wr, name='ajax_get_bn_wr'),
   ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
