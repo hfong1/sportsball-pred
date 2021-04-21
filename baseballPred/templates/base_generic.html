@@ -22,11 +22,11 @@
 				<!-- Header -->
 					<header id="header">
 						<div class="inner">
-                        {% block header %}
-							<!-- Logo -->
+                            <!-- Logo -->
                             <a href="{% url 'baseballPred:index' %}" class="logo">
                                 <span class="symbol"><img src="{% static 'images/Baseball.svg' %}" alt="" /></span><span class="title">Sportsball Predictions</span>
                             </a>
+                        {% block header %}
                         {% endblock %}
                             <!-- Nav -->
                             <nav>
