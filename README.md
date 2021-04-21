@@ -2,8 +2,7 @@
 
 To set up the system on your own computer,
 
-create a virtual environment and activate it
-run:
+Create a virtual environment and activate it. Then run:
 ```
 pip install requirements.txt
 python manage.py makemigrations
